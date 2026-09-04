@@ -486,131 +486,124 @@
             text-shadow: 0 0 18px rgba(255, 74, 16, 0.12);
         }
 
-        .cat-grid {
+        /* ====== MOUNTAIN PATH ====== */
+        .mountain-path {
             position: relative;
             z-index: 1;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(clamp(210px, 22vw, 340px), 1fr));
-            gap: clamp(12px, 1.8vw, 24px);
+            display: flex;
+            flex-direction: column-reverse; /* El primer nivel empieza abajo */
+            align-items: center;
+            gap: 0;
+            padding: 40px 0 100px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        .cat-card {
-            background: linear-gradient(180deg, rgba(255, 244, 230, 0.06), rgba(255, 244, 230, 0.03));
-            border-radius: var(--r-lg);
-            border: 1px solid rgba(255, 74, 16, 0.16);
-            cursor: pointer;
+        .mountain-node-wrap {
             position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow2);
-            transition: transform .18s var(--ease), box-shadow .18s var(--ease), border-color .18s var(--ease), filter .18s var(--ease);
-            min-height: 220px;
-        }
-        .cat-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); border-color: rgba(255, 209, 102, 0.18); filter: saturate(1.06); }
-        .cat-card:active { transform: translateY(-2px) scale(.985); }
-        .cat-card:nth-child(2n) { --cc: var(--gold); }
-        .cat-card:nth-child(3n) { --cc: var(--teal); }
-        .cat-card:nth-child(4n) { --cc: var(--purple); }
-        .cat-card:nth-child(5n) { --cc: var(--blue); }
-        .cat-card:nth-child(6n) { --cc: var(--pri); }
-
-        .cat-card::before {
-            content:'';
-            position:absolute;
-            inset:-2px;
-            background:
-                radial-gradient(520px 220px at 18% 0%, rgba(255, 209, 102, 0.10), transparent 55%),
-                radial-gradient(520px 240px at 80% 0%, color-mix(in srgb, var(--cc, var(--pri)) 20%, transparent), transparent 60%),
-                linear-gradient(120deg, transparent 0 28%, rgba(255, 255, 255, 0.04) 34%, transparent 44%),
-                radial-gradient(1000px 600px at 50% 120%, rgba(255, 74, 16, 0.08), transparent 62%);
-            opacity: .95;
-            pointer-events:none;
-        }
-        .cat-card::after {
-            content:'';
-            position:absolute;
-            inset: 0;
-            pointer-events:none;
-            background:
-                linear-gradient(180deg, rgba(0,0,0,0.0), rgba(0,0,0,0.18) 70%, rgba(0,0,0,0.30));
-            opacity: .9;
-        }
-
-        .cc-topbar {
-            position: relative;
-            z-index: 1;
-            height: 4px;
-            background: linear-gradient(90deg, var(--cc, var(--pri)), rgba(255, 209, 102, 0.7));
-            box-shadow: 0 0 18px color-mix(in srgb, var(--cc, var(--pri)) 55%, transparent);
-        }
-
-        .cc-body {
-            position: relative;
-            z-index: 2;
-            padding: clamp(18px, 2.5vw, 30px) clamp(14px, 2vw, 24px) clamp(16px, 2vh, 24px);
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            margin-top: 10px; /* Aumentado para mayor separación visual */
+        }
+        .mountain-node-wrap:first-child { margin-top: 0; }
+
+        .mountain-node {
+            background: radial-gradient(circle at 30% 30%, #3a261c, #1f1108);
+            border-radius: 50%;
+            width: clamp(100px, 15vw, 130px);
+            height: clamp(100px, 15vw, 130px);
+            border: 4px solid #5a3e2c;
+            box-shadow: inset 0 4px 10px rgba(255,255,255,0.1), 0 10px 20px rgba(0,0,0,0.5), 0 0 0 6px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s var(--ease);
             text-align: center;
-            gap: 10px;
+            text-decoration: none;
         }
 
-        .cc-img-wrap {
-            width: clamp(74px, 9vw, 122px);
-            height: clamp(74px, 9vw, 122px);
-            border-radius: 18px;
-            background: radial-gradient(80px 80px at 30% 30%, rgba(255, 209, 102, 0.10), transparent 70%),
-                        rgba(255, 74, 16, 0.08);
-            border: 1px solid rgba(255, 74, 16, 0.16);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: clamp(10px, 1.2vh, 14px);
-            overflow: hidden;
-            box-shadow: 0 10px 22px rgba(0,0,0,.22);
-            transition: transform .2s var(--ease), box-shadow .2s var(--ease), border-color .2s var(--ease);
-        }
-        .cat-card:hover .cc-img-wrap { transform: translateY(-3px) scale(1.07); border-color: rgba(255, 209, 102, 0.16); box-shadow: 0 14px 34px rgba(0,0,0,.34); }
-        .cc-img-wrap svg { width: 62%; height: 62%; }
+        .node-left .mountain-node { transform: translateX(clamp(-40px, -10vw, -80px)); }
+        .node-right .mountain-node { transform: translateX(clamp(40px, 10vw, 80px)); }
 
-        .cc-name {
+        .node-left .mountain-node:hover { transform: translateX(clamp(-40px, -10vw, -80px)) scale(1.05) translateY(-5px); }
+        .node-right .mountain-node:hover { transform: translateX(clamp(40px, 10vw, 80px)) scale(1.05) translateY(-5px); }
+
+        .mn-icon {
+            font-size: clamp(28px, 4vw, 36px);
+            margin-bottom: 4px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+        }
+
+        .mn-name {
             font-family: 'Rajdhani', sans-serif;
-            font-size: clamp(1.2em, 1.9vw, 1.7em);
+            font-size: clamp(0.75em, 1vw, 0.9em);
             font-weight: 900;
-            letter-spacing: 2px;
+            color: #f3e6d3;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            color: rgba(255,255,255,.94);
-            text-shadow: 0 0 18px rgba(255, 74, 16, 0.12);
-        }
-        .cc-cta {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: clamp(.72em, .95vw, .88em);
-            font-weight: 800;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: color-mix(in srgb, var(--cc, var(--pri)) 70%, var(--gold));
-            margin-top: 2px;
-            opacity: .92;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            padding: 0 8px;
+            line-height: 1.1;
         }
 
-        /* Flecha (existe en HTML) */
-        .cc-arrow {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 40px;
-            height: 40px;
-            border-radius: 14px;
-            background: rgba(255, 244, 230, 0.05);
-            border: 1px solid rgba(255, 74, 16, 0.14);
+        .mn-stars {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 3;
-            transition: transform .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
+            gap: 4px;
+            margin-top: 6px;
         }
-        .cc-arrow svg { width: 18px; height: 18px; stroke: rgba(243, 230, 211, 0.68); }
-        .cat-card:hover .cc-arrow { transform: translateY(-50%) translateX(2px); border-color: rgba(255, 209, 102, 0.16); background: rgba(255, 244, 230, 0.07); }
+        .star { font-size: 14px; color: rgba(255,255,255,0.2); }
+        .star.filled { color: var(--gold); text-shadow: 0 0 8px var(--gold); }
+
+        .mountain-node.locked {
+            background: #2a2a2a;
+            border-color: #444;
+            filter: grayscale(100%);
+            cursor: not-allowed;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .node-left .mountain-node.locked:hover { transform: translateX(clamp(-40px, -10vw, -80px)); }
+        .node-right .mountain-node.locked:hover { transform: translateX(clamp(40px, 10vw, 80px)); }
+
+        .mountain-node.current {
+            border-color: var(--gold);
+            background: radial-gradient(circle at 30% 30%, #5e3b1c, #2b1102);
+            box-shadow: 0 0 30px rgba(255, 209, 102, 0.4), inset 0 0 20px rgba(255, 209, 102, 0.2), 0 10px 20px rgba(0,0,0,0.5), 0 0 0 6px rgba(255, 209, 102, 0.15);
+            animation: pulse-glow 2s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 20px rgba(255, 209, 102, 0.3), inset 0 0 10px rgba(255, 209, 102, 0.2), 0 10px 20px rgba(0,0,0,0.5), 0 0 0 6px rgba(255, 209, 102, 0.1); }
+            100% { box-shadow: 0 0 50px rgba(255, 209, 102, 0.7), inset 0 0 25px rgba(255, 209, 102, 0.4), 0 10px 20px rgba(0,0,0,0.5), 0 0 0 6px rgba(255, 209, 102, 0.2); }
+        }
+
+        .path-svg {
+            position: absolute;
+            top: -95px; /* Ajustado para nueva altura */
+            left: 50%;
+            transform: translateX(-50%);
+            width: clamp(100px, 25vw, 180px);
+            height: 160px; /* Aumentado para cubrir la nueva distancia */
+            z-index: 1;
+            pointer-events: none;
+        }
+        .path-line {
+            fill: none;
+            stroke: rgba(255,255,255,0.15);
+            stroke-width: 6;
+            stroke-dasharray: 12 12;
+            stroke-linecap: round;
+        }
+        .path-line.unlocked {
+            stroke: var(--gold);
+            stroke-dasharray: none;
+            filter: drop-shadow(0 0 6px var(--gold));
+        }
 
         /* ====== SUBMENU ====== */
         #submenu {
@@ -1168,88 +1161,191 @@
     <svg class="chakana-bg" viewBox="0 0 100 100" fill="none"><path d="M33 0H67V33H100V67H67V100H33V67H0V33H33V0Z" fill="#E8450A"/><circle cx="50" cy="50" r="10" fill="none" stroke="#E8450A" stroke-width="2"/></svg>
     <div class="sp-cont" id="spCont"></div>
     <div class="splash-content">
-        <img src="<?php echo e(asset('frames de saludo sin fondo/frame_1.png')); ?>" class="splash-llama" alt="Mascota animada">
+        <img src="{{ asset('frames de saludo sin fondo/frame_1.png') }}" class="splash-llama" alt="Mascota animada">
         <div class="splash-title">BOLI<span>QUECHUA</span></div>
         <div class="splash-sub">Sistema de aprendizaje · v2.0</div>
     </div>
     <div class="s-lines"><div class="s-line"></div><div class="s-dia"></div><div class="s-line"></div></div>
-    <div class="splash-welcome"><div class="sw-lbl">Bienvenido de vuelta</div><div class="sw-name"><?php echo e($nombreUsuario); ?></div></div>
+    <div class="splash-welcome"><div class="sw-lbl">Bienvenido de vuelta</div><div class="sw-name">{{ $nombreUsuario }}</div></div>
     <div class="splash-loader"><div class="l-track"><div class="l-bar"></div></div><div class="l-pct" id="lPct">0%</div></div>
 </div>
 
 <!-- ========== GAME LOADER ========== -->
-<div id="gameLoader"><div class="gl-rings"><div class="gl-ring"></div><div class="gl-ring"></div><div class="gl-ring"></div><div class="gl-ring"></div></div><div class="gl-content"><img src="<?php echo e(asset('frames de saludo sin fondo/frame_1.png')); ?>" class="gl-icon" alt="Mascota animada"><div class="gl-title" id="glTitle">Cargando...</div><div class="gl-sub">BOLIQUECHUA</div><div class="gl-bar-wrap"><div class="gl-track"><div class="gl-bar" id="glBar"></div></div></div></div></div>
+<div id="gameLoader"><div class="gl-rings"><div class="gl-ring"></div><div class="gl-ring"></div><div class="gl-ring"></div><div class="gl-ring"></div></div><div class="gl-content"><img src="{{ asset('frames de saludo sin fondo/frame_1.png') }}" class="gl-icon" alt="Mascota animada"><div class="gl-title" id="glTitle">Cargando...</div><div class="gl-sub">BOLIQUECHUA</div><div class="gl-bar-wrap"><div class="gl-track"><div class="gl-bar" id="glBar"></div></div></div></div></div>
 
 <!-- ========== APP ========== -->
 <div id="app">
     <div id="lp"></div>
     <header id="topbar">
-        <div><div class="logo">BOLI<span>QUECHUA</span></div><div class="tagline">Aprende quechua jugando</div></div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button onclick="window.location.href='{{ route('categorias') }}'" class="sh-btn" style="padding: 6px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="15 18 9 12 15 6"/></svg>
+                Volver
+            </button>
+            <div class="logo">{{ $categoria->nombre ?? 'Niveles' }}</div>
+        </div>
         <div class="topbar-center">
-            <div class="stat-chip hp"><svg viewBox="0 0 24 24" fill="#e74c3c"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg><span class="stat-chip-val"><?php echo e($vidas); ?></span></div>
-            <div class="stat-chip str"><svg viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span class="stat-chip-val"><?php echo e($racha); ?></span></div>
-            <div class="stat-chip pts"><svg viewBox="0 0 24 24" fill="#00C9A7"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="stat-chip-val"><?php echo e($puntuacion); ?></span></div>
+            <div class="stat-chip hp"><svg viewBox="0 0 24 24" fill="#e74c3c"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg><span class="stat-chip-val">{{ $vidas }}</span></div>
+            <div class="stat-chip str"><svg viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span class="stat-chip-val">{{ $racha }}</span></div>
+            <div class="stat-chip pts"><svg viewBox="0 0 24 24" fill="#00C9A7"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="stat-chip-val">{{ $puntuacion }}</span></div>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Cambiar modo claro / oscuro">
-                <span class="theme-icon">☀️</span>
-                <span class="theme-lbl">Modo</span>
+                  <script>
+        window.addEventListener('load', () => {
+        const lp = document.getElementById('lp');
+        const app = document.getElementById('app');
+        const themeBtn = document.getElementById('themeToggleBtn');
+        const html = document.documentElement;
+        
+        let localTheme = localStorage.getItem('boliquechua_theme');
+        if(!localTheme) { localTheme = 'dark'; localStorage.setItem('boliquechua_theme', localTheme); }
+        
+        if (localTheme === 'light') {
+            html.setAttribute('data-theme', 'light');
+            themeBtn.innerHTML = '<span class="theme-icon">🌙</span><span class="theme-lbl">Modo</span>';
+        } else {
+            html.setAttribute('data-theme', 'dark');
+            themeBtn.innerHTML = '<span class="theme-icon">☀️</span><span class="theme-lbl">Modo</span>';
+        }
+
+        setTimeout(() => {
+            lp.style.transform = 'scaleY(0)';
+            app.style.opacity = '1';
+
+            const mainCont = document.getElementById('main');
+            if(!mainCont) return;
+
+            // ANIMACIÓN DE ASCENSO DE NIVEL
+            const urlParams = new URLSearchParams(window.location.search);
+            const levelCompleted = urlParams.get('level_completed');
+
+            if (levelCompleted) {
+                const prevLevelNode = document.getElementById('node-wrap-' + levelCompleted);
+                const nextLevelNum = parseInt(levelCompleted) + 1;
+                const nextLevelNode = document.getElementById('node-wrap-' + nextLevelNum);
+
+                if (prevLevelNode && nextLevelNode) {
+                    // 1. Empezamos en el nivel que acaba de completar (scroll instantáneo)
+                    const scrollToPrev = prevLevelNode.offsetTop - (mainCont.clientHeight / 2) + (prevLevelNode.clientHeight / 2);
+                    mainCont.scrollTo({ top: scrollToPrev, behavior: 'instant' });
+
+                    // 2. Esperamos un segundo y hacemos el scroll suave hacia el NUEVO nivel (hacia arriba)
+                    setTimeout(() => {
+                        const scrollToNext = nextLevelNode.offsetTop - (mainCont.clientHeight / 2) + (nextLevelNode.clientHeight / 2);
+                        mainCont.scrollTo({ top: scrollToNext, behavior: 'smooth' });
+                        
+                        // Añadirle un pequeño efecto visual al nuevo nivel
+                        setTimeout(() => {
+                            const node = nextLevelNode.querySelector('.mountain-node');
+                            if(node) {
+                                node.style.transform = 'scale(1.2)';
+                                setTimeout(() => { node.style.transform = ''; }, 300);
+                            }
+                        }, 600); // tiempo del scroll
+                    }, 1200);
+                }
+            } else {
+                // AUTO-SCROLL NORMAL A LA BASE DE LA MONTAÑA
+                // Si hay un 'current', scroll a ese, si no, a la base (último en el DOM)
+                const currentWrap = document.querySelector('.mountain-node.current')?.closest('.mountain-node-wrap');
+                if (currentWrap) {
+                    const scrollPos = currentWrap.offsetTop - (mainCont.clientHeight / 2) + (currentWrap.clientHeight / 2);
+                    setTimeout(() => {
+                        mainCont.scrollTo({ top: scrollPos, behavior: 'smooth' });
+                    }, 300);
+                } else {
+                    setTimeout(() => {
+                        mainCont.scrollTo({ top: mainCont.scrollHeight, behavior: 'smooth' });
+                    }, 300);
+                }
+            }
+        }, 150);
+    });
+</script>
             </button>
-            <button class="avatar-btn" onclick="window.location.href='<?php echo e(route('profile.edit')); ?>'" title="Ver mi perfil">
-                <?php if(isset($avatar) && (str_starts_with($avatar, '/uploads/') || str_starts_with($avatar, 'http'))): ?>
-                    <img src="<?php echo e(asset($avatar)); ?>" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-                <?php elseif(isset($avatar) && $avatar === 'llama'): ?>
+            <button class="avatar-btn" onclick="window.location.href='{{ route('profile.edit') }}'" title="Ver mi perfil">
+                @if(isset($avatar) && (str_starts_with($avatar, '/uploads/') || str_starts_with($avatar, 'http')))
+                    <img src="{{ asset($avatar) }}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                @elseif(isset($avatar) && $avatar === 'llama')
                     <span style="font-size: 24px;">🦙</span>
-                <?php elseif(isset($avatar) && $avatar === 'condor'): ?>
+                @elseif(isset($avatar) && $avatar === 'condor')
                     <span style="font-size: 24px;">🦅</span>
-                <?php elseif(isset($avatar) && $avatar === 'inca'): ?>
+                @elseif(isset($avatar) && $avatar === 'inca')
                     <span style="font-size: 24px;">👑</span>
-                <?php elseif(isset($avatar) && $avatar === 'coya'): ?>
+                @elseif(isset($avatar) && $avatar === 'coya')
                     <span style="font-size: 24px;">👸</span>
-                <?php elseif(isset($avatar) && $avatar === 'inti'): ?>
+                @elseif(isset($avatar) && $avatar === 'inti')
                     <span style="font-size: 24px;">☀️</span>
-                <?php elseif(isset($avatar) && $avatar === 'chakana'): ?>
+                @elseif(isset($avatar) && $avatar === 'chakana')
                     <span style="font-size: 24px;">🏔️</span>
-                <?php elseif(isset($avatar) && $avatar === 'puma'): ?>
+                @elseif(isset($avatar) && $avatar === 'puma')
                     <span style="font-size: 24px;">🏹</span>
-                <?php elseif(isset($avatar) && $avatar === 'diablada'): ?>
+                @elseif(isset($avatar) && $avatar === 'diablada')
                     <span style="font-size: 24px;">🎭</span>
-                <?php else: ?>
+                @else
                     <svg viewBox="0 0 24 24" fill="none" stroke="#F0DCC0" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                <?php endif; ?>
+                @endif
             </button>
         </div>
     </header>
     <div class="stats-mobile" id="statsMobile">
-        <div class="sm-chip hp"><svg viewBox="0 0 24 24" fill="#e74c3c"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg><span class="sm-chip-val"><?php echo e($vidas); ?></span></div>
-        <div class="sm-chip str"><svg viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span class="sm-chip-val"><?php echo e($racha); ?></span></div>
-        <div class="sm-chip pts"><svg viewBox="0 0 24 24" fill="#00C9A7"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="sm-chip-val"><?php echo e($puntuacion); ?></span></div>
+        <div class="sm-chip hp"><svg viewBox="0 0 24 24" fill="#e74c3c"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg><span class="sm-chip-val">{{ $vidas }}</span></div>
+        <div class="sm-chip str"><svg viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span class="sm-chip-val">{{ $racha }}</span></div>
+        <div class="sm-chip pts"><svg viewBox="0 0 24 24" fill="#00C9A7"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="sm-chip-val">{{ $puntuacion }}</span></div>
     </div>
     <main id="main">
-        <div class="sec-head"><div class="sec-line"></div><div class="sec-title">Elige una categoría</div><div class="sec-line" style="background:linear-gradient(270deg,var(--border),transparent)"></div></div>
-        <div class="cat-grid" id="catGrid">
-            <?php $__currentLoopData = $categorias; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <div class="cat-card" onclick="window.location.href='<?php echo e(route('niveles', ['id' => $cat->id])); ?>'">
-                <div class="cc-topbar"></div>
-                <div class="cc-body">
-                    <div class="cc-img-wrap">
-                        <svg viewBox="0 0 64 64" fill="none"><rect x="8" y="8" width="48" height="48" rx="10" fill="rgba(232,69,10,0.12)" stroke="rgba(232,69,10,0.4)" stroke-width="1.5"/><path d="M20 32 L32 20 L44 32 L44 46 L20 46 Z" fill="rgba(245,166,35,0.18)" stroke="#F5A623" stroke-width="1.5" stroke-linejoin="round"/><circle cx="32" cy="32" r="6" fill="rgba(232,69,10,0.25)" stroke="#E8450A" stroke-width="1.5"/></svg>
+        <div class="mountain-path" id="mountainPath">
+            @foreach($nodos as $i => $nodo)
+            @php
+                // Alternar izquierda y derecha en el zigzag
+                $isLeft = $i % 2 == 0;
+                $isUnlocked = $nodo->estado !== 'locked';
+                $isCurrent = $nodo->estado === 'active';
+                $isCompleted = $nodo->estado === 'completed';
+            @endphp
+            <div class="mountain-node-wrap {{ $isLeft ? 'node-left' : 'node-right' }}" id="node-wrap-{{ $nodo->orden }}">
+                
+                @if($i < count($nodos) - 1)
+                <svg class="path-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    @if($isLeft)
+                        <path class="path-line {{ $isCompleted ? 'unlocked' : '' }}" d="M 20,100 Q 50,50 80,0" />
+                    @else
+                        <path class="path-line {{ $isCompleted ? 'unlocked' : '' }}" d="M 80,100 Q 50,50 20,0" />
+                    @endif
+                </svg>
+                @endif
+
+                @if($isUnlocked)
+                    <a href="{{ $nodo->subNivelUrl }}" class="mountain-node {{ $isCurrent ? 'current' : '' }}">
+                @else
+                    <div class="mountain-node locked" onclick="alert('¡Completa el nivel anterior para desbloquear este!')">
+                @endif
+                    <div class="mn-icon">
+                        @if($isUnlocked) 🏔️ @else 🔒 @endif
                     </div>
-                    <div class="cc-name"><?php echo e($cat->nombre); ?></div>
-                    <div class="cc-cta">Seleccionar ▶</div>
-                </div>
-                <div class="cc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></div>
+                    <div class="mn-name">Nivel {{ $nodo->orden }}</div>
+                    <div class="mn-stars">
+                        @for($s = 1; $s <= 3; $s++)
+                            @if($s <= $nodo->estrellas)
+                                <span class="star filled">★</span>
+                            @else
+                                <span class="star">☆</span>
+                            @endif
+                        @endfor
+                    </div>
+                @if($isUnlocked) </a> @else </div> @endif
             </div>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            @endforeach
         </div>
         <!-- Mascota animada en bucle en el dashboard -->
-        <img src="<?php echo e(asset('frames de saludo sin fondo/frame_1.png')); ?>" class="dashboard-llama" alt="Condorio animado" style="position: fixed; bottom: 80px; right: 10px; width: clamp(120px, 25vw, 200px); pointer-events: none; z-index: 10; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));">
+        <img src="{{ asset('frames de saludo sin fondo/frame_1.png') }}" class="dashboard-llama" alt="Condorio animado" style="position: fixed; bottom: 80px; right: 10px; width: clamp(120px, 25vw, 200px); pointer-events: none; z-index: 10; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));">
     </main>
     <nav id="navbar">
-        <button class="nb-btn" onclick="window.location.href='<?php echo e(url('/categorias')); ?>'"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nb-lbl">Inicio</span></button>
+        <button class="nb-btn" onclick="window.location.href='{{ url('/categorias') }}'"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nb-lbl">Inicio</span></button>
         <button class="nb-btn" onclick="showLogros()"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg><span class="nb-lbl">Logros</span></button>
         <button class="nb-btn" onclick="alert('Práctica próximamente')"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span class="nb-lbl">Práctica</span></button>
-        <button class="nb-btn" onclick="window.location.href='<?php echo e(route('profile.edit')); ?>'"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nb-lbl">Perfil</span></button>
+        <button class="nb-btn" onclick="window.location.href='{{ route('profile.edit') }}'"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nb-lbl">Perfil</span></button>
     </nav>
 </div>
 
@@ -1276,9 +1372,9 @@
     <div class="sheet" onclick="event.stopPropagation()">
         <div class="profile-ava"><svg viewBox="0 0 24 24" fill="#FFD166"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
         <div class="profile-name">Mis Logros</div>
-        <div class="profile-stats"><div class="ps-item"><span class="ps-val">6</span><span class="ps-lbl">Categorías</span></div><div class="ps-item"><span class="ps-val"><?php echo e($puntuacion); ?></span><span class="ps-lbl">Puntos</span></div></div>
+        <div class="profile-stats"><div class="ps-item"><span class="ps-val">6</span><span class="ps-lbl">Categorías</span></div><div class="ps-item"><span class="ps-val">{{ $puntuacion }}</span><span class="ps-lbl">Puntos</span></div></div>
         <hr class="sh-divider">
-        <div class="logro-list"><div class="logro-item"><svg viewBox="0 0 24 24" fill="#FFD166"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><div><div class="logro-name">Primera lección</div><div class="logro-desc">Completaste tu primera lección</div></div></div><div class="logro-item <?php echo e($racha >= 7 ? '' : 'logro-locked'); ?>"><svg viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><div><div class="logro-name">Racha de 7 días</div><div class="logro-desc">Juega 7 días seguidos</div></div></div><div class="logro-item <?php echo e($puntuacion >= 100 ? '' : 'logro-locked'); ?>"><svg viewBox="0 0 24 24" fill="none" stroke="#00C9A7" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><div><div class="logro-name">100 Puntos</div><div class="logro-desc">Alcanza 100 puntos en quechua</div></div></div></div>
+        <div class="logro-list"><div class="logro-item"><svg viewBox="0 0 24 24" fill="#FFD166"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><div><div class="logro-name">Primera lección</div><div class="logro-desc">Completaste tu primera lección</div></div></div><div class="logro-item {{ $racha >= 7 ? '' : 'logro-locked' }}"><svg viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><div><div class="logro-name">Racha de 7 días</div><div class="logro-desc">Juega 7 días seguidos</div></div></div><div class="logro-item {{ $puntuacion >= 100 ? '' : 'logro-locked' }}"><svg viewBox="0 0 24 24" fill="none" stroke="#00C9A7" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><div><div class="logro-name">100 Puntos</div><div class="logro-desc">Alcanza 100 puntos en quechua</div></div></div></div>
         <button class="sh-btn" onclick="closeModal('logrosModal')">Cerrar</button>
     </div>
 </div>
@@ -1287,34 +1383,34 @@
 <div class="overlay" id="profileModal" onclick="closeModal('profileModal')">
     <div class="sheet" onclick="event.stopPropagation()">
         <div class="profile-ava">
-            <?php if(isset($avatar) && (str_starts_with($avatar, '/uploads/') || str_starts_with($avatar, 'http'))): ?>
-                <img src="<?php echo e(asset($avatar)); ?>" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-            <?php elseif(isset($avatar) && $avatar === 'llama'): ?>
+            @if(isset($avatar) && (str_starts_with($avatar, '/uploads/') || str_starts_with($avatar, 'http')))
+                <img src="{{ asset($avatar) }}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            @elseif(isset($avatar) && $avatar === 'llama')
                 <span style="font-size: 38px;">🦙</span>
-            <?php elseif(isset($avatar) && $avatar === 'condor'): ?>
+            @elseif(isset($avatar) && $avatar === 'condor')
                 <span style="font-size: 38px;">🦅</span>
-            <?php elseif(isset($avatar) && $avatar === 'inca'): ?>
+            @elseif(isset($avatar) && $avatar === 'inca')
                 <span style="font-size: 38px;">👑</span>
-            <?php elseif(isset($avatar) && $avatar === 'coya'): ?>
+            @elseif(isset($avatar) && $avatar === 'coya')
                 <span style="font-size: 38px;">👸</span>
-            <?php elseif(isset($avatar) && $avatar === 'inti'): ?>
+            @elseif(isset($avatar) && $avatar === 'inti')
                 <span style="font-size: 38px;">☀️</span>
-            <?php elseif(isset($avatar) && $avatar === 'chakana'): ?>
+            @elseif(isset($avatar) && $avatar === 'chakana')
                 <span style="font-size: 38px;">🏔️</span>
-            <?php elseif(isset($avatar) && $avatar === 'puma'): ?>
+            @elseif(isset($avatar) && $avatar === 'puma')
                 <span style="font-size: 38px;">🏹</span>
-            <?php elseif(isset($avatar) && $avatar === 'diablada'): ?>
+            @elseif(isset($avatar) && $avatar === 'diablada')
                 <span style="font-size: 38px;">🎭</span>
-            <?php else: ?>
+            @else
                 <svg viewBox="0 0 24 24" fill="none" stroke="#F0DCC0" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            <?php endif; ?>
+            @endif
         </div>
-        <div class="profile-name"><?php echo e($nombreUsuario); ?></div>
-        <div class="profile-stats"><div class="ps-item"><span class="ps-val"><?php echo e($puntuacion); ?></span><span class="ps-lbl">Puntos</span></div><div class="ps-item"><span class="ps-val"><?php echo e($racha); ?></span><span class="ps-lbl">Racha</span></div><div class="ps-item"><span class="ps-val"><?php echo e($vidas); ?></span><span class="ps-lbl">Vidas</span></div></div>
+        <div class="profile-name">{{ $nombreUsuario }}</div>
+        <div class="profile-stats"><div class="ps-item"><span class="ps-val">{{ $puntuacion }}</span><span class="ps-lbl">Puntos</span></div><div class="ps-item"><span class="ps-val">{{ $racha }}</span><span class="ps-lbl">Racha</span></div><div class="ps-item"><span class="ps-val">{{ $vidas }}</span><span class="ps-lbl">Vidas</span></div></div>
         <hr class="sh-divider">
         <button type="button" class="sh-btn" onclick="toggleTheme()">🌓 Alternar Modo Claro / Oscuro</button>
-        <button type="button" class="sh-btn" style="background: linear-gradient(135deg, var(--pri), var(--pri-dk)); color: #fff; font-weight: 700;" onclick="window.location.href='<?php echo e(route('profile.edit')); ?>'">🌟 Ver Perfil Completo y Avatar</button>
-        <form method="POST" action="<?php echo e(route('logout')); ?>"><?php echo csrf_field(); ?><button type="submit" class="sh-btn" style="color: #ff7676;">Cerrar sesión</button></form>
+        <button type="button" class="sh-btn" style="background: linear-gradient(135deg, var(--pri), var(--pri-dk)); color: #fff; font-weight: 700;" onclick="window.location.href='{{ route('profile.edit') }}'">🌟 Ver Perfil Completo y Avatar</button>
+        <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="sh-btn" style="color: #ff7676;">Cerrar sesión</button></form>
         <button class="sh-btn" onclick="closeModal('profileModal')">Cerrar</button>
     </div>
 </div>
@@ -1324,9 +1420,9 @@
     const animFrames = [];
     for (let i = 1; i <= 40; i++) {
         if (i <= 10) {
-            animFrames.push(`<?php echo e(asset('frames de saludo sin fondo/frame_')); ?>${i}.png`);
+            animFrames.push(`{{ asset('frames de saludo sin fondo/frame_') }}${i}.png`);
         } else {
-            animFrames.push(`<?php echo e(asset('frames de saludo sin fondo/frame_')); ?>${i}-removebg-preview.png`);
+            animFrames.push(`{{ asset('frames de saludo sin fondo/frame_') }}${i}-removebg-preview.png`);
         }
     }
     const splashImg = document.querySelector('.splash-llama');
@@ -1361,7 +1457,16 @@
     let interval = setInterval(() => { pct = Math.min(pct + Math.floor(Math.random()*8)+2, 100); document.getElementById('lPct').innerText = pct+'%'; if(pct>=100) clearInterval(interval); }, 70);
     setTimeout(() => {
         document.getElementById('splash').classList.add('splash-exit');
-        setTimeout(() => { document.getElementById('splash').style.display = 'none'; document.getElementById('app').classList.add('visible'); spawnLobbyParticlesLoop(); }, 650);
+        setTimeout(() => { 
+            document.getElementById('splash').style.display = 'none'; 
+            document.getElementById('app').classList.add('visible'); 
+            spawnLobbyParticlesLoop(); 
+            // Auto-scroll al nivel 1 ahora que #app es visible
+            const main = document.getElementById('main');
+            if (main) {
+                main.scrollTo({ top: main.scrollHeight, behavior: 'instant' });
+            }
+        }, 650);
     }, 3800);
     function spawnLobbyParticlesLoop() { for(let i=0;i<35;i++) setTimeout(spawnLP, i*90); setInterval(spawnLP, 270); }
     function spawnLP() { let p = document.createElement('div'); p.className = 'lp'; let s = 2+Math.random()*4; p.style.cssText = `left:${Math.random()*100}%;bottom:${-4+Math.random()*8}%;width:${s}px;height:${s}px;background:${['#F5A623','#E8450A','#FFD166','#FF6B35','#00C9A7'][Math.floor(Math.random()*5)]};animation-duration:${5+Math.random()*8}s;`; document.getElementById('lp').appendChild(p); setTimeout(()=>p.remove(), (5+Math.random()*8)*1000); }
@@ -1411,9 +1516,44 @@
 
     // Inicializar UI de tema
     document.addEventListener('DOMContentLoaded', () => {
-        const theme = localStorage.getItem('boliquechua_theme') || 'dark';
-        updateThemeUI(theme);
+        const currentTheme = localStorage.getItem('boliquechua_theme') || 'dark';
+        updateThemeUI(currentTheme);
     });
+
+    // Revisar vidas en background
+    setInterval(() => {
+        const vidasEl = document.querySelector('.ps-item:last-child .ps-val');
+        if (!vidasEl) return;
+        let currentVidas = parseInt(vidasEl.innerText);
+        if (currentVidas >= 5) return;
+        
+        fetch('{{ route("check.vidas") }}')
+            .then(res => res.json())
+            .then(data => {
+                if (data.regeneradas > 0) {
+                    vidasEl.innerText = data.vidas;
+                    // Mostrar un toast simple
+                    let toast = document.createElement('div');
+                    toast.innerHTML = '¡Has recibido una nueva vida! ❤️';
+                    toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);color:var(--text);padding:15px 25px;border-radius:30px;box-shadow:0 10px 30px rgba(0,0,0,0.2);z-index:9999;font-weight:bold;border:2px solid var(--pri);animation:toastUp 0.5s ease-out;';
+                    document.body.appendChild(toast);
+                    
+                    // Añadir estilos para la animación si no existen
+                    if (!document.getElementById('toastStyle')) {
+                        let style = document.createElement('style');
+                        style.id = 'toastStyle';
+                        style.innerHTML = '@keyframes toastUp { from { opacity: 0; bottom: -20px; } to { opacity: 1; bottom: 20px; } }';
+                        document.head.appendChild(style);
+                    }
+                    
+                    setTimeout(() => {
+                        toast.style.transition = 'opacity 0.5s';
+                        toast.style.opacity = '0';
+                        setTimeout(() => toast.remove(), 500);
+                    }, 4000);
+                }
+            }).catch(e => console.error(e));
+    }, 15000);
 </script>
 </body>
-</html><?php /**PATH D:\proyecto-boliquechua-de-chore-main (1)\proyecto-boliquechua-de-chore-main\resources\views/index.blade.php ENDPATH**/ ?>
+</html>

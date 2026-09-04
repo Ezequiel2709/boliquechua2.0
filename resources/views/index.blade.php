@@ -1229,7 +1229,7 @@
         <div class="sec-head"><div class="sec-line"></div><div class="sec-title">Elige una categoría</div><div class="sec-line" style="background:linear-gradient(270deg,var(--border),transparent)"></div></div>
         <div class="cat-grid" id="catGrid">
             @foreach($categorias as $cat)
-            <div class="cat-card" onclick="openSubmenu({{ $cat->id }}, '{{ $cat->nombre }}', '{{ $cat->icono ?? '' }}')">
+            <div class="cat-card" onclick="window.location.href='{{ route('niveles', ['id' => $cat->id]) }}'">
                 <div class="cc-topbar"></div>
                 <div class="cc-body">
                     <div class="cc-img-wrap">

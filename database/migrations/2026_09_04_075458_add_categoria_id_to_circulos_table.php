@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->integer('experiencia')->default(0)->after('puntuacion_total');
-            $table->timestamp('ultimo_juego_at')->nullable()->after('experiencia');
+        Schema::table('circulos', function (Blueprint $table) {
+            $table->foreignId('categoria_id')->nullable()->after('seccion_id')->constrained('categorias')->onDelete('cascade');
         });
     }
 
@@ -22,8 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['experiencia', 'ultimo_juego_at']);
+        Schema::table('circulos', function (Blueprint $table) {
+            $table->dropForeign(['categoria_id']);
+            $table->dropColumn('categoria_id');
         });
     }
 };

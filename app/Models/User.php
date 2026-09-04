@@ -26,6 +26,7 @@ class User extends Authenticatable
         'racha_dias',
         'puntuacion_total',
         'avatar',
+        'vidas_updated_at',
     ];
 
     /**
@@ -48,6 +49,37 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'vidas_updated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Regenera las vidas del usuario basado en el tiempo transcurrido (1 vida cada 10 mins).
+     */
+    public function regenerarVidas(): void
+    {
+        if ($this->vidas < 5) {
+            if ($this->vidas_updated_at) {
+                $minutesPassed = now()->diffInMinutes($this->vidas_updated_at);
+                if ($minutesPassed >= 2) {
+                    $vidasToAdd = floor($minutesPassed / 2);
+                    $this->vidas = min(5, $this->vidas + $vidasToAdd);
+                    
+                    if ($this->vidas == 5) {
+                        $this->vidas_updated_at = null;
+                    } else {
+                        $this->vidas_updated_at = (clone $this->vidas_updated_at)->addMinutes($vidasToAdd * 2);
+                    }
+                    $this->save();
+                }
+            } else {
+                // Fallback de seguridad: si las vidas son menores a 5 pero el contador no inició
+                $this->vidas_updated_at = now();
+                $this->save();
+            }
+        } elseif ($this->vidas >= 5 && !is_null($this->vidas_updated_at)) {
+            $this->vidas_updated_at = null;
+            $this->save();
+        }
     }
 }

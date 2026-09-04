@@ -372,6 +372,60 @@
             cursor: pointer;
         }
 
+        /* Flashcards mejoradas */
+        .flashcard-reveal-btn {
+            background: var(--pri);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 40px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .flashcard-eval-btns {
+            display: none;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .flashcard-eval-btns button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 40px;
+            border: none;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-knew-it { background: #4CAF50; }
+        .btn-failed-it { background: #E53935; }
+
+        /* Modo Escucha */
+        .escucha-speaker-btn {
+            background: rgba(232, 69, 10, 0.2);
+            border: 2px solid var(--pri);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            margin: 0 auto 30px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 0 20px rgba(232, 69, 10, 0.3);
+        }
+        .escucha-speaker-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(232, 69, 10, 0.5);
+        }
+        .escucha-speaker-btn:active {
+            transform: scale(0.95);
+        }
+
         .feedback {
             margin: 15px 0;
             padding: 10px;
@@ -838,7 +892,7 @@
     <div class="modal-sheet">
         <h2>🏁 Juego completado</h2>
         <p id="modalMessage"></p>
-        <button onclick="cerrarModalYReiniciar()">🔄 Jugar de nuevo</button>
+        <button id="btnRejugar" onclick="cerrarModalYReiniciar()">🔄 Jugar de nuevo</button>
         <button onclick="window.location.href='<?php echo e(route('categorias')); ?>'">🏠 Ir a inicio</button>
     </div>
 </div>
@@ -850,6 +904,7 @@
     let puntos = 0;
     let vidas = <?php echo e($vidas); ?>;
     const vidasIniciales = <?php echo e($vidas); ?>;
+    const dificultadJuego = <?php echo e($dificultad ?? 1); ?>;
     let waitingResponse = false;
     let progresoGuardado = false;
 
@@ -860,22 +915,26 @@
     if (urlMode === 'relacionar') urlMode = 'match';
     if (urlMode === 'comodice') urlMode = 'escribir';
 
-    const validModes = ['multiple', 'flashcards', 'match', 'escribir'];
+    const validModes = ['multiple', 'flashcards', 'match', 'escribir', 'mixto'];
     let currentMode = validModes.includes(urlMode) ? urlMode : 'multiple';
 
-    // Sincronizar botones de modo con el modo activo
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-        if (btn.dataset.mode === currentMode) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
+    // Ocultar selector si es mixto
+    if (currentMode === 'mixto') {
+        document.getElementById('modeSelector').style.display = 'none';
+    } else {
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            if (btn.dataset.mode === currentMode) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    let currentStreak = 0; // Para animación de racha
 
     // Variables para modo Relacionar (Match)
-    const MATCH_BATCH_SIZE = 5;
-    let matchBatches = [];
-    let matchBatchIndex = 0;
+    const MATCH_BATCH_SIZE = 3; // Reducido para no ser abrumador en los primeros niveles
     let matchSelected = null;
     let matchMatched = 0;
 
@@ -1100,7 +1159,7 @@
         document.getElementById('progresoText').innerText = `${currentIndex}/${palabras.length}`;
     }
 
-    function guardarProgresoEnServidor() {
+    function guardarProgresoEnServidor(xpGanado) {
         if (progresoGuardado) return;
         progresoGuardado = true;
         const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -1113,8 +1172,10 @@
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                puntos: puntos,
-                vidas: vidas
+                xp_ganado: xpGanado,
+                vidas: vidas,
+                sub_nivel_id: <?php echo e($subNivelId ?? 0); ?>
+
             })
         })
         .then(res => res.json())
@@ -1122,30 +1183,73 @@
             if (data.success) {
                 const saveNotice = document.getElementById('saveNotice');
                 if (saveNotice) {
-                    saveNotice.innerHTML = `✅ ¡Puntaje guardado! (Puntos totales: ${data.puntuacion_total} | Racha: ${data.racha_dias} días)`;
+                    saveNotice.innerHTML = `✅ ¡Progreso guardado! (XP Total: ${data.puntuacion_total} | Racha: ${data.racha_dias} días)`;
                 }
             }
         })
         .catch(err => console.error('Error guardando progreso:', err));
     }
 
-    function gameOver() {
+    function showVictoriaModal(xpFinal, base, bono) {
         document.getElementById('modalMessage').innerHTML = `
-            ⭐ Puntos ganados: <strong>+${puntos}</strong><br>
-            ❤️ Vidas restantes: <strong>${vidas}</strong><br>
-            📚 Palabras completadas: <strong>${currentIndex}/${palabras.length}</strong>
-            <div id="saveNotice" style="margin-top:10px; font-size:0.9em; color:var(--teal);">💾 Guardando progreso...</div>
+            <div style="font-size:3em; margin-bottom:10px;">🏆</div>
+            <div style="font-size:1.2em; color:var(--gold);">¡Lección Completada!</div>
+            <br>
+            XP Base: <strong>+${base}</strong><br>
+            Bono Precisión: <strong>+${bono}</strong><br>
+            <div style="margin-top:10px; font-size:1.4em; color:var(--teal);">Total ganado: <strong>${xpFinal} XP</strong></div>
+            <div id="saveNotice" style="margin-top:15px; font-size:0.9em; color:var(--muted);">💾 Guardando progreso...</div>
         `;
+        document.getElementById('btnRejugar').style.display = 'inline-block';
         document.getElementById('resultModal').style.display = 'flex';
-        guardarProgresoEnServidor();
+        guardarProgresoEnServidor(xpFinal);
+    }
+
+    function showGameOverModal() {
+        document.getElementById('modalMessage').innerHTML = `
+            <div style="font-size:3em; margin-bottom:10px;">💔</div>
+            <div style="font-size:1.2em; color:#e74c3c;">¡Te quedaste sin vidas!</div>
+            <br>
+            Has perdido el progreso de esta lección.<br>
+            XP Ganado: <strong>0</strong>
+            <div id="saveNotice" style="margin-top:15px; font-size:0.9em; color:var(--muted);">Actualizando estado...</div>
+            <div style="margin-top:20px;">
+                <button class="sh-btn" onclick="window.location.href='<?php echo e(route('categorias')); ?>'" style="background:var(--card); color:var(--text); width: 100%;">Volver a Categorías</button>
+            </div>
+        `;
+        document.getElementById('btnRejugar').style.display = 'none';
+        document.getElementById('resultModal').style.display = 'flex';
+        
+        // Hide the regular buttons in the modal if there are any
+        const nextBtn = document.querySelector('#resultModal .sh-btn');
+        if(nextBtn && nextBtn.innerText.includes('Siguiente')) {
+             nextBtn.style.display = 'none';
+        }
+
+        guardarProgresoEnServidor(0); // 0 XP
+    }
+
+    function gameOver() {
+        if (vidas <= 0) {
+            showGameOverModal();
+        } else {
+            // Calcular XP si ganó
+            let baseXP = 10;
+            let bonoXP = 0;
+            if (vidas === 5) bonoXP = 5; // Perfecto
+            else if (vidas >= 1) bonoXP = 3; // Sobrevivió con errores
+            
+            let xpFinal = baseXP + bonoXP;
+            showVictoriaModal(xpFinal, baseXP, bonoXP);
+        }
     }
 
     function cerrarModalYReiniciar() {
         document.getElementById('resultModal').style.display = 'none';
         currentIndex = 0;
         puntos = 0;
+        currentStreak = 0;
         progresoGuardado = false;
-        if (vidas <= 0) vidas = 5;
         waitingResponse = false;
         matchBatches = [];
         actualizarUI();
@@ -1158,6 +1262,36 @@
             cargarJuego();
         } else {
             gameOver();
+        }
+    }
+
+    // Centralizar aciertos y errores
+    function handleSuccess(palabra) {
+        puntos += palabra.puntos;
+        currentStreak++;
+        waitingResponse = true;
+        
+        // Animación de racha de combos!
+        if (currentStreak >= 3) {
+            const mascota = document.getElementById('mascotaAnimada');
+            if (mascota) mascota.style.transform = 'scale(1.3) rotate(5deg)';
+            setTimeout(() => { if(mascota) mascota.style.transform = ''; }, 500);
+            mostrarFeedbackBanner(true, `¡Estás en racha! 🔥 ${currentStreak} seguidas`, siguientePalabra);
+        } else {
+            mostrarFeedbackBanner(true, '', siguientePalabra);
+        }
+    }
+
+    function handleError(palabra) {
+        vidas--;
+        currentStreak = 0; // Se rompe la racha
+        actualizarUI();
+        waitingResponse = true;
+        
+        if (vidas <= 0) {
+            mostrarFeedbackBanner(false, `Era: ${palabra.palabra_espanol || palabra.palabra_quechua}`, gameOver);
+        } else {
+            mostrarFeedbackBanner(false, `Era: ${palabra.palabra_espanol || palabra.palabra_quechua}`, siguientePalabra);
         }
     }
 
@@ -1194,24 +1328,16 @@
     window.checkMultiple = function(selected, el) {
         if (waitingResponse) return;
         const palabra = palabras[currentIndex];
-        const feedbackDiv = document.getElementById('feedbackMultiple');
         if (selected === palabra.palabra_espanol) {
-            puntos += palabra.puntos;
             el.classList.add('correct');
-            waitingResponse = true;
-            mostrarFeedbackBanner(true, '', siguientePalabra);
+            handleSuccess(palabra);
         } else {
-            vidas--;
-            actualizarUI();
             el.classList.add('incorrect');
             document.querySelectorAll('.option-btn').forEach(btn => {
                 if (btn.innerText.trim() === palabra.palabra_espanol) btn.classList.add('correct');
             });
-            waitingResponse = true;
-            if (vidas <= 0) mostrarFeedbackBanner(false, `Era: ${palabra.palabra_espanol}`, gameOver);
-            else mostrarFeedbackBanner(false, `Era: ${palabra.palabra_espanol}`, siguientePalabra);
+            handleError(palabra);
         }
-        actualizarUI();
         document.querySelectorAll('.option-btn').forEach(btn => btn.style.pointerEvents = 'none');
     };
 
@@ -1222,75 +1348,62 @@
             return;
         }
         const palabra = palabras[currentIndex];
-        const intro = roundIntroForMode('flashcards');
+        
         let html = `
-            ${audioBannerHtml(intro.label)}
-            <div class="flashcard" id="flashcard">
-                <div class="flashcard-question">📖 ${renderQuechuaSpeakable(palabra.palabra_quechua)}</div>
-                <div class="audio-pill">
-                    <button class="audio-btn small" ${AUDIO.supported ? '' : 'disabled'} onclick="speakQuechua('${palabra.palabra_quechua.replace(/'/g, "\\'")}')">🔊 Escuchar</button>
-                    <button class="audio-btn small" ${AUDIO.supported ? '' : 'disabled'} onclick="repeatLastAudio()">⟲ Repetir</button>
+            <div style="text-align:center; color:var(--muted); font-size:0.9em; margin-bottom:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">¿Recuerdas esta palabra?</div>
+            <div class="flashcard" id="flashcardElement">
+                <div class="flashcard-question">${palabra.palabra_quechua}</div>
+                <div class="flashcard-answer" id="flashAnswer" style="display:none; font-size:1.6em; color:var(--gold); margin-top:20px; font-weight:800;">
+                    ${palabra.palabra_espanol}
                 </div>
-                <div class="flashcard-answer" id="flashAnswer">${escapeHtml(palabra.palabra_espanol)}</div>
-                <input type="text" id="flashInput" class="flashcard-input" placeholder="Escribe la traducción en español..." autocomplete="off">
-                <button class="check-btn" id="checkFlashBtn">Verificar</button>
-                <div id="feedbackFlash"></div>
-                <div id="nextFlashBtn"></div>
+                <button class="flashcard-reveal-btn" id="revealBtn" onclick="revelarFlashcard()">Revelar respuesta</button>
+                <div class="flashcard-eval-btns" id="evalBtns">
+                    <button class="btn-failed-it" onclick="evaluarFlashcard(false)">No lo sabía ❌</button>
+                    <button class="btn-knew-it" onclick="evaluarFlashcard(true)">¡Lo sabía! ✅</button>
+                </div>
             </div>
         `;
         document.getElementById('gameContent').innerHTML = html;
-        document.getElementById('checkFlashBtn').onclick = () => verificarFlashcard();
-        document.getElementById('flashInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') verificarFlashcard();
-        });
-        speakRoundIntro('flashcards');
-        speakQuechua(palabra.palabra_quechua);
+        actualizarUI();
+        
+        if (AUDIO.supported) speakQuechua(palabra.palabra_quechua);
     }
 
-    function verificarFlashcard() {
+    window.revelarFlashcard = function() {
+        document.getElementById('flashAnswer').style.display = 'block';
+        document.getElementById('revealBtn').style.display = 'none';
+        document.getElementById('evalBtns').style.display = 'flex';
+    };
+
+    window.evaluarFlashcard = function(acerto) {
         if (waitingResponse) return;
         const palabra = palabras[currentIndex];
-        const input = document.getElementById('flashInput').value.trim().toLowerCase();
-        const correcta = palabra.palabra_espanol.toLowerCase();
-        const feedback = document.getElementById('feedbackFlash');
-        if (input === correcta) {
-            puntos += palabra.puntos;
-            waitingResponse = true;
-            mostrarFeedbackBanner(true, '', siguientePalabra);
+        
+        // Bloquear botones
+        document.getElementById('evalBtns').style.pointerEvents = 'none';
+        
+        if (acerto) {
+            handleSuccess(palabra);
         } else {
-            vidas--;
-            actualizarUI();
-            waitingResponse = true;
-            if (vidas <= 0) mostrarFeedbackBanner(false, `Era: ${palabra.palabra_espanol}`, gameOver);
-            else mostrarFeedbackBanner(false, `Era: ${palabra.palabra_espanol}`, siguientePalabra);
+            // Pasamos palabra temporal para que el mensaje de error sea bonito
+            let pError = {...palabra};
+            pError.palabra_espanol = palabra.palabra_espanol;
+            handleError(pError);
         }
-        actualizarUI();
-        document.getElementById('flashInput').disabled = true;
-    }
+    };
 
-    // ===================== MODO RELACIONAR (Paginado en tandas) =====================
-    function initMatchBatches() {
-        let shuffled = [...palabras].sort(() => Math.random() - 0.5);
-        matchBatches = [];
-        for (let i = 0; i < shuffled.length; i += MATCH_BATCH_SIZE) {
-            matchBatches.push(shuffled.slice(i, i + MATCH_BATCH_SIZE));
-        }
-        matchBatchIndex = 0;
-    }
-
+    // ===================== MODO RELACIONAR (Dinámico) =====================
     function cargarMatch() {
-        if (!palabras || palabras.length === 0) {
-            document.getElementById('gameContent').innerHTML = '<div class="feedback">No hay palabras disponibles.</div>';
-            return;
-        }
-        if (matchBatches.length === 0) {
-            initMatchBatches();
-        }
-        const currentBatch = matchBatches[matchBatchIndex] || [];
-        if (currentBatch.length === 0) {
+        waitingResponse = false; // FIX: Desbloquear UI para la nueva ronda
+        
+        let remaining = palabras.length - currentIndex;
+        if (remaining <= 0) {
             gameOver();
             return;
         }
+
+        let batchSize = Math.min(MATCH_BATCH_SIZE, remaining);
+        const currentBatch = palabras.slice(currentIndex, currentIndex + batchSize);
 
         let quechuas = [...currentBatch].sort(() => Math.random() - 0.5);
         let espanoles = [...currentBatch].sort(() => Math.random() - 0.5);
@@ -1299,7 +1412,7 @@
         let html = `
             ${audioBannerHtml(roundIntroForMode('match').label)}
             <div style="text-align:center;font-size:0.85em;color:var(--muted);margin-bottom:8px;">
-                Ronda ${matchBatchIndex + 1} de ${matchBatches.length} (${currentBatch.length} parejas)
+                Relaciona las ${batchSize} parejas
             </div>
             <div class="match-container">
                 <div class="match-col"><h4>🇵🇪 Quechua</h4><div id="colQuechua"></div></div>
@@ -1335,7 +1448,9 @@
     }
 
     function selectMatchItem(el, batchSize) {
+        if (vidas <= 0 || waitingResponse) return;
         if (el.classList.contains('matched')) return;
+        
         if (matchSelected === null) {
             document.querySelectorAll('.match-item').forEach(i => i.classList.remove('selected'));
             el.classList.add('selected');
@@ -1343,36 +1458,50 @@
         } else {
             if (matchSelected.dataset.type === el.dataset.type) {
                 document.querySelectorAll('.match-item').forEach(i => i.classList.remove('selected'));
-                matchSelected = null;
+                el.classList.add('selected'); // Si toca otro del mismo lado, cambia la selección
+                matchSelected = el;
                 return;
             }
             const queItem = matchSelected.dataset.type === 'que' ? matchSelected : el;
             const esItem = matchSelected.dataset.type === 'es' ? matchSelected : el;
+            
             if (parseInt(queItem.dataset.id) === parseInt(esItem.dataset.id)) {
                 queItem.classList.add('matched');
                 esItem.classList.add('matched');
                 queItem.classList.remove('selected');
                 esItem.classList.remove('selected');
+                
+                // Color verde momentáneo para feedback rápido
+                queItem.style.borderColor = '#4CAF50';
+                esItem.style.borderColor = '#4CAF50';
+                
                 puntos += 20;
                 matchMatched++;
                 currentIndex++;
                 actualizarUI();
+                
                 if (matchMatched === batchSize) {
-                    matchBatchIndex++;
-                    if (matchBatchIndex < matchBatches.length) {
-                        mostrarFeedbackBanner(true, 'Ronda completada', cargarMatch);
-                    } else {
-                        mostrarFeedbackBanner(true, '¡Todas las rondas completadas!', gameOver);
-                    }
-                } else {
-                    mostrarFeedbackBanner(true, '¡Sigue así!', () => {});
+                    waitingResponse = true;
+                    mostrarFeedbackBanner(true, 'Ronda completada', cargarJuego);
                 }
             } else {
                 vidas--;
                 actualizarUI();
-                if (vidas <= 0) mostrarFeedbackBanner(false, 'Pareja incorrecta', gameOver);
-                else mostrarFeedbackBanner(false, 'Pareja incorrecta', () => {});
+                
+                // Color rojo momentáneo para indicar error sin bloquear el juego
+                queItem.style.borderColor = '#E53935';
+                esItem.style.borderColor = '#E53935';
+                setTimeout(() => {
+                    queItem.style.borderColor = '';
+                    esItem.style.borderColor = '';
+                }, 500);
+
+                if (vidas <= 0) {
+                    waitingResponse = true;
+                    mostrarFeedbackBanner(false, '¡Te quedaste sin vidas!', gameOver);
+                }
             }
+            
             matchSelected = null;
             document.querySelectorAll('.match-item').forEach(i => i.classList.remove('selected'));
         }
@@ -1381,29 +1510,24 @@
     // ===================== MODO ESCRIBIR =====================
     function cargarEscribir() {
         if (!palabras || palabras.length === 0) {
-            document.getElementById('gameContent').innerHTML = '<div class="feedback">No hay palabras disponibles.</div>';
+            document.getElementById('gameContent').innerHTML = '<p>No hay palabras.</p>';
             return;
         }
         const palabra = palabras[currentIndex];
-        const intro = roundIntroForMode('escribir');
         let html = `
-            ${audioBannerHtml(intro.label)}
-            <div class="question-word">✍️ ¿Cómo se dice "${escapeHtml(palabra.palabra_espanol)}" en quechua?</div>
-            <div class="audio-pill">
-                <button class="audio-btn small" ${AUDIO.supported ? '' : 'disabled'} onclick="speakSpanish('¿Cómo se dice ${palabra.palabra_espanol.replace(/'/g, "\\'")} en quechua?')">🔊 Escuchar consigna</button>
-                <button class="audio-btn small" ${AUDIO.supported ? '' : 'disabled'} onclick="repeatLastAudio()">⟲ Repetir</button>
+            <div style="text-align:center; color:var(--muted); font-size:0.9em; margin-bottom:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Traducción exacta</div>
+            <div class="question-word">${palabra.palabra_espanol}</div>
+            <div style="text-align:center;">
+                <input type="text" id="escribirInput" class="escribir-input" placeholder="Escribe en quechua..." autocomplete="off">
+                <button class="check-btn" style="width:100%" onclick="verificarEscribir()">Verificar</button>
             </div>
-            <input type="text" id="escribirInput" class="escribir-input" placeholder="Escribe en quechua..." autocomplete="off">
-            <button class="check-btn" id="checkEscribirBtn">Verificar</button>
-            <div id="feedbackEscribir"></div>
-            <div id="nextEscribirBtn"></div>
         `;
         document.getElementById('gameContent').innerHTML = html;
-        document.getElementById('checkEscribirBtn').onclick = () => verificarEscribir();
-        document.getElementById('escribirInput').addEventListener('keydown', (e) => {
+        actualizarUI();
+        
+        document.getElementById('escribirInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') verificarEscribir();
         });
-        speakRoundIntro('escribir');
     }
 
     function verificarEscribir() {
@@ -1411,23 +1535,69 @@
         const palabra = palabras[currentIndex];
         const input = document.getElementById('escribirInput').value.trim().toLowerCase();
         const correcta = palabra.palabra_quechua.toLowerCase();
-        const feedback = document.getElementById('feedbackEscribir');
+        speakQuechua(palabra.palabra_quechua); // Siempre hablar para reforzar
         if (input === correcta) {
-            puntos += palabra.puntos;
-            waitingResponse = true;
-            speakQuechua(palabra.palabra_quechua);
-            mostrarFeedbackBanner(true, '', siguientePalabra);
+            handleSuccess(palabra);
         } else {
-            vidas--;
-            actualizarUI();
-            waitingResponse = true;
-            speakQuechua(palabra.palabra_quechua);
-            if (vidas <= 0) mostrarFeedbackBanner(false, `Era: ${palabra.palabra_quechua}`, gameOver);
-            else mostrarFeedbackBanner(false, `Era: ${palabra.palabra_quechua}`, siguientePalabra);
+            // Modificamos la palabra temporalmente para que el error muestre el quechua esperado
+            let pError = {...palabra};
+            pError.palabra_espanol = palabra.palabra_quechua;
+            handleError(pError);
         }
-        actualizarUI();
         document.getElementById('escribirInput').disabled = true;
     }
+
+    // ===================== MODO ESCUCHA =====================
+    function cargarEscucha() {
+        if (!palabras || palabras.length === 0) return;
+        const palabra = palabras[currentIndex];
+        
+        // Obtener 3 opciones extra que NO sean la respuesta
+        let opcionesExtra = [];
+        let i = 0;
+        let pAux = [...palabras].sort(() => 0.5 - Math.random());
+        while (opcionesExtra.length < 3 && i < pAux.length) {
+            if (pAux[i].id !== palabra.id) opcionesExtra.push(pAux[i].palabra_espanol);
+            i++;
+        }
+        
+        // Si por alguna razón no hay suficientes (muy raro), rellenar con algo
+        while(opcionesExtra.length < 3) opcionesExtra.push("Opción " + (opcionesExtra.length + 1));
+        
+        let todasOpciones = [palabra.palabra_espanol, ...opcionesExtra];
+        todasOpciones.sort(() => 0.5 - Math.random());
+
+        let html = `
+            <div style="text-align:center; color:var(--muted); font-size:0.9em; margin-bottom:20px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">¿Qué estás escuchando?</div>
+            
+            <div class="escucha-speaker-btn" onclick="speakQuechua('${palabra.palabra_quechua}')">🔊</div>
+            
+            <div class="options-grid">
+                ${todasOpciones.map(op => `<div class="option-btn" onclick="checkEscucha('${op}', this)">${op}</div>`).join('')}
+            </div>
+        `;
+        document.getElementById('gameContent').innerHTML = html;
+        actualizarUI();
+        
+        // Reproducir automáticamente la primera vez
+        setTimeout(() => speakQuechua(palabra.palabra_quechua), 400);
+    }
+
+    window.checkEscucha = function(selected, el) {
+        if (waitingResponse) return;
+        const palabra = palabras[currentIndex];
+        if (selected === palabra.palabra_espanol) {
+            el.classList.add('correct');
+            handleSuccess(palabra);
+        } else {
+            el.classList.add('incorrect');
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                if (btn.innerText.trim() === palabra.palabra_espanol) btn.classList.add('correct');
+            });
+            handleError(palabra);
+        }
+        document.querySelectorAll('.option-btn').forEach(btn => btn.style.pointerEvents = 'none');
+    };
 
     // ===================== CONTROL PRINCIPAL =====================
     function cargarJuego() {
@@ -1437,10 +1607,34 @@
             return;
         }
         if (!AUDIO.supported) showAudioUnsupportedOnce();
-        if (currentMode === 'multiple') cargarMultiple();
-        else if (currentMode === 'flashcards') cargarFlashcards();
-        else if (currentMode === 'match') cargarMatch();
-        else if (currentMode === 'escribir') cargarEscribir();
+        
+        let modeToPlay = currentMode;
+        
+        // Si el modo es mixto, sortear el minijuego de esta fase basado en dificultad
+        if (currentMode === 'mixto') {
+            let randomModes = [];
+            
+            if (dificultadJuego <= 5) {
+                // Principiantes: Opción múltiple, Escucha, y Relacionar
+                randomModes = ['multiple', 'escucha', 'match'];
+            } else if (dificultadJuego <= 12) {
+                // Intermedios: Todo lo anterior + Flashcards
+                randomModes = ['multiple', 'escucha', 'match', 'flashcards'];
+            } else {
+                // Avanzados: Todo lo anterior + Escribir
+                randomModes = ['multiple', 'escucha', 'match', 'flashcards', 'escribir'];
+            }
+            
+            // Elegir aleatoriamente
+            modeToPlay = randomModes[Math.floor(Math.random() * randomModes.length)];
+        }
+
+        if (modeToPlay === 'multiple') cargarMultiple();
+        else if (modeToPlay === 'flashcards') cargarFlashcards();
+        else if (modeToPlay === 'match') cargarMatch();
+        else if (modeToPlay === 'escribir') cargarEscribir();
+        else if (modeToPlay === 'escucha') cargarEscucha();
+        
         actualizarUI();
     }
 
@@ -1497,6 +1691,25 @@
 
     const currentTheme = localStorage.getItem('boliquechua_theme') || 'dark';
     updateThemeUI(currentTheme);
+
+    // Revisar vidas en segundo plano
+    setInterval(() => {
+        if (vidas >= 5) return;
+        fetch('<?php echo e(route("check.vidas")); ?>')
+            .then(res => res.json())
+            .then(data => {
+                if (data.regeneradas > 0) {
+                    vidas = data.vidas;
+                    actualizarUI();
+                    mostrarFeedbackBanner(true, '¡Has recibido una nueva vida! ❤️', null);
+                    
+                    // Si estaba en Game Over y ahora tiene vidas, reactivar el botón de jugar de nuevo
+                    if (vidas > 0 && document.getElementById('resultModal').style.display === 'flex') {
+                        document.getElementById('btnRejugar').style.display = 'inline-block';
+                    }
+                }
+            }).catch(e => console.error(e));
+    }, 15000);
 
     actualizarUI();
     cargarJuego();

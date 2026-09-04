@@ -12,8 +12,10 @@ Route::get('/', function () {
 // Las rutas protegidas (requieren login)
 Route::middleware(['auth'])->group(function () {
     Route::get('/categorias', [QuechuaController::class, 'index'])->name('categorias');
+    Route::get('/categoria/{id}/niveles', [QuechuaController::class, 'niveles'])->name('niveles');
     Route::get('/juego/{id}', [QuechuaController::class, 'juego'])->name('juego');
     Route::post('/guardar-progreso', [QuechuaController::class, 'guardarProgreso'])->name('guardar.progreso');
+    Route::get('/check-vidas', [QuechuaController::class, 'checkVidas'])->name('check.vidas');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
